@@ -5,21 +5,16 @@ Program runs until user ends session.
 """
 from random import randint
 
+
 def load_names():
     """Loads all name lists"""
-    # Get male names
-    with open('male_names.txt', 'r') as file:
-        names = file.readlines()
-        male_name_list = [name.strip() for name in names if name.strip() != '']
-    # Get female names
-    with open('female_names.txt', 'r') as file:
-        names = file.readlines()
-        female_name_list = [name.strip() for name in names if name.strip() != '']
-    # Get surnames
-    with open('surnames.txt', 'r') as file:
-        surnames = file.readlines()
-        surname_list = [surname.strip() for surname in surnames if surname.strip() != '']
-    return male_name_list, female_name_list, surname_list
+    with open('male_names.txt', 'r') as file:  # Get male names
+        male_name_list = [name.strip() for name in file.readlines() if name.strip() != '']
+    with open('female_names.txt', 'r') as file:  # Get female names
+        female_name_list = [name.strip() for name in file.readlines() if name.strip() != '']
+    with open('surnames.txt', 'r') as file:  # Get surnames
+        surname_list = [surname.strip() for surname in file.readlines() if surname.strip() != '']
+    return male_name_list, female_name_list, surname_list  # Return all three lists
 
 
 def male(sur):
@@ -37,6 +32,7 @@ def female(sur):
         name += ' ' + surname()
     print(name)
 
+
 def surname():
     """Returns Surname"""
     return surname_list[randint(0, len(surname_list))]
@@ -44,27 +40,25 @@ def surname():
 
 if __name__ == '__main__':
     loop = True
-    male_name_list, female_name_list, surname_list = load_names() # Load name lists
-    print("Welcome to the medieval name generator!\n"
-          "Please enter a gender\n")
+    male_name_list, female_name_list, surname_list = load_names()  # Load name lists
+    print("Welcome to the Medieval Name Generator!\n")
     while loop:
         try:
-            gender = input("\"M\" for Male or \"F\" for Female:").title()
-            if len(gender) == 1:
+            num_names = int(input("How many names would you like to generate?\n"))
+            gender = input("\"M\" for Male or \"F\" for Female:").upper()
+            if len(gender) == 1 and gender == "M" or gender == 'F' and num_names > 0:
                 sur = input("Add a surname? Y or N (N by default): ").upper()
-                if gender == "M":
-                    print("\nYour Male Name:", end=' ')
-                    male(sur)
-                if gender == "F":
-                    print("\nYour Female Name:", end=' ')
-                    female(sur)
+                for i in range(num_names):
+                    print(str(i + 1) + ".", end='  ')
+                    if gender == "M":
+                        male(sur)
+                    if gender == "F":
+                        female(sur)
             else:
                 raise TypeError
-                print("Enter M or F")
-            gen_again = input('\nGenerate another name? (Y to continue): ').upper()
+            gen_again = input('\nGenerate more names? (Y to continue): ').upper()
             if gen_again != 'Y':
                 loop = False
-        except TypeError:
-            print("Enter M or F")
+        except (TypeError, ValueError):
+            print("Invalid Input")
     print("Good-Bye!")
-
