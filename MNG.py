@@ -4,43 +4,42 @@ User chooses Male or Female with the option to add a surname.
 Program runs until user ends session.
 """
 from random import randint
+import sqlite3
 
-
-def load_names():
-    """Loads all name lists"""
-    with open('male_names.txt', 'r') as file:  # Get male names
-        male_name_list = [name.strip() for name in file.readlines() if name.strip() != '']
-    with open('female_names.txt', 'r') as file:  # Get female names
-        female_name_list = [name.strip() for name in file.readlines() if name.strip() != '']
-    with open('surnames.txt', 'r') as file:  # Get surnames
-        surname_list = [surname.strip() for surname in file.readlines() if surname.strip() != '']
-    return male_name_list, female_name_list, surname_list  # Return all three lists
-
-
-def male(sur):
+def male(sur, cur):
     """Prints Make name with optional Surname"""
-    name = male_name_list[randint(0, len(male_name_list))]
+    cur.execute("SELECT count(id) FROM Male_names")
+    max_id = cur.fetchone()[0]
+    cur.execute("SELECT Male From Male_names WHERE id = ?", (randint(0, max_id),))
+    name = cur.fetchone()[0]
     if sur == 'Y':
-        name += ' ' + surname()
+        name += ' ' + surname(cur)
     print(name)
 
 
-def female(sur):
+def female(sur, cur):
     """Prints Female name with optional Surname"""
-    name = female_name_list[randint(0, len(female_name_list))]
+    cur.execute("SELECT count(id) FROM Female_names")
+    max_id = cur.fetchone()[0]
+    cur.execute("SELECT Female From Female_names WHERE id = ?", (randint(0, max_id),))
+    name = cur.fetchone()[0]
     if sur == 'Y':
-        name += ' ' + surname()
+        name += ' ' + surname(cur)
     print(name)
 
 
-def surname():
+def surname(cur):
     """Returns Surname"""
-    return surname_list[randint(0, len(surname_list))]
+    cur.execute("SELECT count(id) FROM Male_names")
+    max_id = cur.fetchone()[0]
+    cur.execute("SELECT Surname From Surnames WHERE id = ?", (randint(0, max_id),))
+    return cur.fetchone()[0]
 
 
 if __name__ == '__main__':
+    conn = sqlite3.connect("Names.DB")
+    cur = conn.cursor()
     loop = True
-    male_name_list, female_name_list, surname_list = load_names()  # Load name lists
     print("Welcome to the Medieval Name Generator!\n")
     while loop:
         try:
@@ -51,9 +50,9 @@ if __name__ == '__main__':
                 for i in range(num_names):
                     print(str(i + 1) + ".", end='  ')
                     if gender == "M":
-                        male(sur)
+                        male(sur, cur)
                     if gender == "F":
-                        female(sur)
+                        female(sur, cur)
             else:
                 raise TypeError
             gen_again = input('\nGenerate more names? (Y to continue): ').upper()
@@ -62,3 +61,4 @@ if __name__ == '__main__':
         except (TypeError, ValueError):
             print("Invalid Input")
     print("Good-Bye!")
+    conn.close()
